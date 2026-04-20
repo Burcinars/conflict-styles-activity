@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conflict Styles: Interactive Student Activity</title>
+  <style>
+    :root {
+      --bg: #faf7f1;
+      --bg2: #f1ece4;
+      --ink: #191714;
+      --muted: #686057;
+      --soft: #fffdf8;
+      --card: #ffffff;
+      --line: #e7ddd0;
+      --line-dark: #cdbfae;
+      --shadow: 0 20px 55px rgba(33, 26, 18, 0.11);
+      --shadow-soft: 0 12px 32px rgba(33, 26, 18, 0.08);
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --accent: #24211d;
+      --accent-2: #68442d;
+      --gold: #f6df9d;
+      --rose: #f6dce1;
+      --blue: #dce8f6;
+      --green: #dfead9;
+      --violet: #eee4f7;
+      --gray: #eeeeea;
+      --ok: #1f6f43;
+      --bad: #9b2e2e;
+      --focus: 0 0 0 4px rgba(104, 68, 45, 0.18);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(246, 223, 157, 0.45), transparent 28rem),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, a:focus-visible, input:focus-visible { outline: none; box-shadow: var(--focus); }
+
+    .shell { width: min(1180px, calc(100% - 28px)); margin: 0 auto; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: rgba(250, 247, 241, 0.83);
+      border-bottom: 1px solid rgba(231, 221, 208, 0.84);
+    }
+    .nav {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 950; letter-spacing: -0.03em; }
+    .brand-dot { width: 38px; height: 38px; border-radius: 14px; display: grid; place-items: center; background: var(--accent); color: white; box-shadow: var(--shadow-soft); }
+    .navlinks { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .navlinks a {
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 850;
+      font-size: 0.92rem;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    .navlinks a:hover { background: rgba(255,255,255,0.72); border-color: var(--line); }
+
+    .hero { padding: 44px 0 24px; }
+    .hero-card {
+      background: var(--accent);
+      color: white;
+      border-radius: 38px;
+      padding: clamp(26px, 5vw, 54px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -130px auto;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle, rgba(246, 223, 157, 0.26), transparent 68%);
+      pointer-events: none;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.14);
+      font-weight: 850;
+      color: rgba(255,255,255,0.92);
+    }
+    h1, h2, h3 { margin: 0; line-height: 1.08; letter-spacing: -0.045em; }
+    h1 { font-size: clamp(2.65rem, 7vw, 6.1rem); margin: 18px 0 16px; max-width: 900px; }
+    .hero-lead { max-width: 840px; font-size: clamp(1.08rem, 2vw, 1.35rem); color: rgba(255,255,255,0.88); margin: 0; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+    .pill-link, .primary-btn, .ghost-btn, .chip-btn, .option-btn, .scenario-tab, .style-btn, .mini-btn, .ack-btn, .next-btn, .reset-btn, .toggle-btn {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 900;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .pill-link { text-decoration: none; padding: 13px 17px; box-shadow: 0 12px 26px rgba(0,0,0,0.16); }
+    .pill-link.secondary { color: white; background: transparent; border-color: rgba(255,255,255,0.22); box-shadow: none; }
+    .pill-link:hover, .primary-btn:hover, .ghost-btn:hover, .chip-btn:hover, .option-btn:hover, .scenario-tab:hover, .style-btn:hover, .mini-btn:hover, .ack-btn:hover, .next-btn:hover, .reset-btn:hover, .toggle-btn:hover { transform: translateY(-2px); }
+
+    section { margin: 24px 0; }
+    .panel {
+      background: rgba(255,255,255,0.86);
+      border: 1px solid rgba(231,221,208,0.94);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+    }
+    .section-head { padding: clamp(22px, 4vw, 34px) clamp(20px, 4vw, 34px) 0; display: grid; gap: 10px; }
+    .section-tag { width: fit-content; display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 8px 12px; background: var(--soft); border: 1px solid var(--line); font-weight: 900; color: var(--accent-2); }
+    h2 { font-size: clamp(1.8rem, 4vw, 3.25rem); max-width: 920px; }
+    .section-head p { max-width: 910px; margin: 0; color: var(--muted); font-size: 1.04rem; }
+    .content { padding: clamp(20px, 4vw, 34px); }
+
+    .activity-grid { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 18px; align-items: stretch; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: 0 8px 20px rgba(33, 26, 18, 0.035);
+    }
+    .card.soft { background: linear-gradient(180deg, var(--soft), #fff); }
+    .card.gold { background: linear-gradient(180deg, rgba(246,223,157,0.55), #fff); }
+    .card.blue { background: linear-gradient(180deg, rgba(220,232,246,0.76), #fff); }
+    .card.green { background: linear-gradient(180deg, rgba(223,234,217,0.78), #fff); }
+    .card.rose { background: linear-gradient(180deg, rgba(246,220,225,0.78), #fff); }
+    .card.violet { background: linear-gradient(180deg, rgba(238,228,247,0.78), #fff); }
+    .card h3 { font-size: 1.35rem; margin-bottom: 8px; }
+    .card p { margin: 0; color: var(--muted); }
+    .big-question { font-size: clamp(1.5rem, 2.6vw, 2.25rem); font-weight: 950; letter-spacing: -0.04em; line-height: 1.16; margin: 10px 0 16px; }
+    .tiny-label { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 950; color: var(--accent-2); }
+    .definition-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+    .definition-item { border: 1px solid var(--line); border-radius: var(--radius-md); padding: 14px; background: rgba(255,255,255,0.7); }
+    .definition-item strong { display: block; margin-bottom: 4px; }
+    .definition-item span { color: var(--muted); font-size: 0.94rem; }
+
+    .challenge-options, .style-row, .scenario-tabs, .answer-options, .context-row, .style-filter-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .option-btn, .chip-btn, .scenario-tab, .style-btn, .mini-btn, .ack-btn, .next-btn, .reset-btn, .toggle-btn { padding: 11px 14px; }
+    .option-btn { text-align: left; border-radius: var(--radius-md); width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .option-btn[aria-pressed="true"], .chip-btn.active, .scenario-tab.active, .style-btn.active, .mini-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .challenge-feedback { margin-top: 14px; display: none; border-radius: var(--radius-md); border: 1px solid var(--line); background: var(--soft); padding: 16px; }
+    .challenge-feedback.show { display: block; }
+    .challenge-feedback strong { display: block; margin-bottom: 4px; }
+
+    .style-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 13px; }
+    .style-card { border: 1px solid var(--line); border-radius: var(--radius-lg); background: white; padding: 18px; min-height: 205px; cursor: pointer; display: grid; gap: 10px; align-content: start; transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease; }
+    .style-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-soft); }
+    .style-card.active { border-color: var(--accent); box-shadow: 0 18px 38px rgba(33, 26, 18, 0.13); }
+    .style-card .icon { font-size: 1.7rem; }
+    .style-card strong { font-size: 1.14rem; letter-spacing: -0.03em; }
+    .style-card span { color: var(--muted); font-size: 0.94rem; }
+    .style-card.competing { background: linear-gradient(180deg, var(--gold), white); }
+    .style-card.collaborating { background: linear-gradient(180deg, var(--green), white); }
+    .style-card.compromising { background: linear-gradient(180deg, var(--blue), white); }
+    .style-card.avoiding { background: linear-gradient(180deg, var(--gray), white); }
+    .style-card.accommodating { background: linear-gradient(180deg, var(--rose), white); }
+
+    .style-detail { margin-top: 18px; display: grid; grid-template-columns: 0.88fr 1.12fr; gap: 16px; }
+    .quote-box { border-left: 5px solid var(--accent); background: var(--soft); padding: 15px 16px; border-radius: 18px; font-weight: 900; font-size: 1.08rem; }
+    .detail-list { display: grid; gap: 10px; }
+    .detail-row { display: grid; grid-template-columns: 145px 1fr; gap: 14px; border: 1px solid var(--line); background: #fff; border-radius: 18px; padding: 13px 14px; }
+    .detail-row b { color: var(--accent-2); }
+    .detail-row span { color: var(--muted); }
+
+    .finder-layout { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 18px; align-items: start; }
+    .slider-card { display: grid; gap: 15px; }
+    .slider-row { border: 1px solid var(--line); border-radius: var(--radius-lg); background: #fff; padding: 16px; }
+    .slider-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+    .slider-title { display: grid; gap: 3px; }
+    .slider-title strong { font-size: 1.04rem; }
+    .slider-title small { color: var(--muted); font-weight: 750; }
+    .slider-value { font-weight: 950; color: var(--accent-2); min-width: 54px; text-align: right; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    .scale { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.84rem; font-weight: 800; margin-top: 4px; }
+    .context-note { display: none; margin-top: 12px; padding: 13px; border: 1px solid var(--line); border-radius: 16px; background: var(--soft); color: var(--muted); }
+    .context-note.show { display: block; }
+    .toggle-btn { padding: 7px 10px; font-size: 0.86rem; background: var(--soft); }
+
+    .recommendation { position: sticky; top: 86px; display: grid; gap: 14px; }
+    .rec-style { font-size: clamp(1.55rem, 3vw, 2.55rem); font-weight: 950; letter-spacing: -0.045em; line-height: 1.12; }
+    .rec-pill { display: inline-flex; width: fit-content; padding: 8px 12px; border-radius: 999px; background: var(--accent); color: white; font-weight: 950; }
+    .profile-bars { display: grid; gap: 9px; }
+    .profile-line { display: grid; gap: 4px; }
+    .profile-line .bar-label { display: flex; justify-content: space-between; font-size: 0.87rem; font-weight: 900; color: var(--muted); }
+    .bar-track { height: 10px; background: #eee7dc; border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--accent); border-radius: 999px; width: 50%; transition: width 0.22s ease; }
+    .rec-text-grid { display: grid; gap: 10px; }
+    .rec-text-grid .response-block { background: rgba(255,255,255,0.82); }
+
+    .scenario-layout { display: grid; grid-template-columns: 0.86fr 1.14fr; gap: 18px; align-items: start; }
+    .scenario-list { display: grid; gap: 10px; }
+    .scenario-tab { border-radius: var(--radius-md); text-align: left; display: grid; justify-items: start; gap: 4px; padding: 14px; }
+    .scenario-tab small { color: inherit; opacity: 0.7; font-weight: 800; }
+    .scenario-tab.active small { opacity: 0.85; }
+    .context-row { margin: 12px 0; }
+    .context-chip { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); color: var(--muted); font-size: 0.88rem; font-weight: 850; }
+    .context-panel { display: none; border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 16px; background: var(--soft); margin-top: 12px; }
+    .context-panel.show { display: grid; gap: 10px; }
+    .context-panel .context-item { display: grid; grid-template-columns: 150px 1fr; gap: 12px; }
+    .context-panel b { color: var(--accent-2); }
+    .context-panel span { color: var(--muted); }
+    .scenario-main { display: grid; gap: 14px; }
+    .style-choice-panel { display: grid; gap: 12px; }
+    .style-row { margin-bottom: 4px; }
+    .style-btn { background: #fff; }
+    .response-card { border: 1px solid var(--line); border-radius: var(--radius-lg); background: white; padding: 20px; display: grid; gap: 14px; }
+    .sample-line { background: var(--soft); border-left: 5px solid var(--accent); border-radius: 18px; padding: 14px 16px; font-weight: 900; font-size: 1.06rem; }
+    .response-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .response-block { border: 1px solid var(--line); border-radius: 18px; padding: 14px; background: #fff; }
+    .response-block b { display: block; margin-bottom: 4px; color: var(--accent-2); }
+    .response-block span, .response-block p { color: var(--muted); margin: 0; }
+
+    .quiz-layout { display: grid; grid-template-columns: 0.82fr 1.18fr; gap: 18px; align-items: start; }
+    .quiz-sticky { position: sticky; top: 86px; display: grid; gap: 14px; }
+    .progress-track { height: 13px; background: #eee7dc; border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.25s ease; }
+    .quiz-meta { color: var(--muted); font-weight: 900; }
+    .question-card { display: grid; gap: 15px; }
+    .question-text { font-size: clamp(1.25rem, 2.2vw, 1.8rem); line-height: 1.24; font-weight: 950; letter-spacing: -0.035em; }
+    .question-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .fact { border: 1px solid var(--line); background: var(--soft); border-radius: 16px; padding: 11px 12px; }
+    .fact b { display: block; color: var(--accent-2); font-size: 0.86rem; margin-bottom: 2px; }
+    .fact span { color: var(--muted); font-size: 0.94rem; }
+    .answer-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .answer-btn { border: 1px solid var(--line); border-radius: var(--radius-md); background: #fff; padding: 15px; cursor: pointer; font-weight: 950; text-align: left; transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease; }
+    .answer-btn:hover { transform: translateY(-2px); }
+    .answer-btn.selected { border-color: var(--accent); background: var(--soft); box-shadow: inset 0 0 0 2px rgba(36,33,29,0.07); }
+    .answer-btn:disabled { cursor: default; transform: none; opacity: 0.98; }
+    .feedback-panel { display: none; border: 1px solid var(--line-dark); border-radius: var(--radius-lg); background: #fff; padding: 18px; gap: 14px; }
+    .feedback-panel.show { display: grid; }
+    .feedback-title { display: grid; gap: 4px; }
+    .feedback-title strong { font-size: 1.22rem; }
+    .feedback-title span { color: var(--muted); }
+    .choice-explanations { display: grid; gap: 10px; }
+    .choice-explanation { border: 1px solid var(--line); border-radius: 18px; padding: 13px; background: var(--soft); }
+    .choice-explanation.correct { border-color: rgba(31,111,67,0.32); background: #f1faf2; }
+    .choice-explanation.selected-wrong { border-color: rgba(155,46,46,0.28); background: #fff4f4; }
+    .choice-explanation b { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+    .choice-explanation p { margin: 0; color: var(--muted); }
+    .ack-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .ack-btn { background: var(--accent); color: white; border-color: var(--accent); }
+    .next-btn { display: none; background: var(--accent); color: white; border-color: var(--accent); }
+    .next-btn.show { display: inline-flex; }
+    .reset-btn { display: none; }
+    .reset-btn.show { display: inline-flex; }
+    .score-card { display: none; border-radius: var(--radius-lg); border: 1px solid var(--line); background: linear-gradient(180deg, var(--green), white); padding: 18px; }
+    .score-card.show { display: grid; gap: 8px; }
+
+    .reflection-grid { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 18px; }
+    .reflection-output { min-height: 230px; display: grid; align-content: start; gap: 12px; }
+    .footer { color: var(--muted); text-align: center; padding: 26px 0 44px; font-size: 0.95rem; }
+
+    @media (max-width: 1060px) {
+      .activity-grid, .finder-layout, .scenario-layout, .quiz-layout, .reflection-grid, .style-detail { grid-template-columns: 1fr; }
+      .style-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .recommendation, .quiz-sticky { position: static; }
+    }
+    @media (max-width: 720px) {
+      .shell { width: min(100% - 18px, 1180px); }
+      .nav { align-items: flex-start; flex-direction: column; padding: 12px 0; }
+      .navlinks { justify-content: flex-start; }
+      .hero { padding-top: 18px; }
+      .hero-card { border-radius: 26px; }
+      .definition-strip, .response-grid, .question-facts, .answer-options { grid-template-columns: 1fr; }
+      .style-grid { grid-template-columns: 1fr; }
+      .detail-row, .context-panel .context-item { grid-template-columns: 1fr; gap: 4px; }
+    }
+    @media print {
+      .topbar, .hero-actions, .scenario-list, .style-row, .answer-options, .ack-row, .toggle-btn { display: none !important; }
+      body { background: white; }
+      .panel, .hero-card { box-shadow: none; }
+      .context-panel, .feedback-panel, .score-card { display: block !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="shell nav">
+      <div class="brand"><div class="brand-dot">↔</div><span>Conflict Styles Activity</span></div>
+      <div class="navlinks" aria-label="Page sections">
+        <a href="#start">Start</a>
+        <a href="#styles">Styles</a>
+        <a href="#finder">Fit Finder</a>
+        <a href="#scenarios">Scenarios</a>
+        <a href="#quiz">Quiz</a>
+        <a href="#reflect">Reflect</a>
+      </div>
+    </div>
+  </div>
+
+  <header class="hero shell" id="start">
+    <div class="hero-card">
+      <div class="eyebrow">Student activity · no login needed</div>
+      <h1>Conflict is not one thing.</h1>
+      <p class="hero-lead">The same disagreement can call for different responses depending on the relationship, the stakes, urgency, emotion, and accountability around the situation.</p>
+      <div class="hero-actions">
+        <a href="#finder" class="pill-link">Try the Fit Finder</a>
+        <a href="#scenarios" class="pill-link secondary">Work through scenarios</a>
+        <a href="#quiz" class="pill-link secondary">Take the quiz</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="panel">
+      <div class="section-head">
+        <div class="section-tag">⚡ Quick challenge</div>
+        <h2>What would you do first?</h2>
+        <p>Choose the response that best fits the situation. There is feedback, but this is not about getting a perfect score yet. It is about noticing what information matters.</p>
+      </div>
+      <div class="content activity-grid">
+        <div class="card gold">
+          <div class="tiny-label">Situation</div>
+          <div class="big-question">A teammate missed two internal deadlines. The final client presentation is in 36 hours.</div>
+          <p>You have a decent relationship, but the rest of the team is losing patience. The client will see the final work, and your manager has asked for an update by tomorrow morning.</p>
+          <div class="definition-strip">
+            <div class="definition-item"><strong>Relationship</strong><span>Important, but strained.</span></div>
+            <div class="definition-item"><strong>Accountability</strong><span>Manager + client visibility.</span></div>
+            <div class="definition-item"><strong>Urgency</strong><span>High, but not immediate crisis.</span></div>
+          </div>
+        </div>
+        <div class="card soft">
+          <div class="tiny-label">Pick the best first move</div>
+          <div class="challenge-options" id="challengeOptions"></div>
+          <div class="challenge-feedback" id="challengeFeedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="styles">
+      <div class="section-head">
+        <div class="section-tag">🧩 The five styles</div>
+        <h2>Click a style. Notice what it protects.</h2>
+        <p>Each style can be effective. The problem is usually not having a style. The problem is using the same style automatically when the situation calls for something else.</p>
+      </div>
+      <div class="content">
+        <div class="style-grid" id="styleGrid"></div>
+        <div class="style-detail">
+          <div class="card soft">
+            <div class="section-tag" id="styleDetailTag">Style</div>
+            <div class="quote-box" id="styleQuote"></div>
+            <p id="styleSummary" style="margin-top:12px;"></p>
+          </div>
+          <div class="detail-list" id="styleDetailRows"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="finder">
+      <div class="section-head">
+        <div class="section-tag">🎚️ Fit Finder</div>
+        <h2>Use the situation, not your default.</h2>
+        <p>This replaces the old map. Instead of trying to read a chart, adjust the sliders and watch the recommendation change. Use the small context buttons when a term needs examples.</p>
+      </div>
+      <div class="content finder-layout">
+        <div class="slider-card" id="sliderCard"></div>
+        <div class="card green recommendation" aria-live="polite">
+          <div class="rec-pill">Suggested first style</div>
+          <div class="rec-style" id="recStyle">Collaborating</div>
+          <p id="recWhy"></p>
+          <div class="profile-bars" id="profileBars"></div>
+          <div class="rec-text-grid">
+            <div class="response-block"><b>Try saying</b><span id="recPhrase"></span></div>
+            <div class="response-block"><b>Watch out</b><span id="recRisk"></span></div>
+            <div class="response-block"><b>Emotional heat at this level</b><span id="heatMeaning"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="scenarios">
+      <div class="section-head">
+        <div class="section-tag">💼 Scenario lab</div>
+        <h2>More context, without clutter.</h2>
+        <p>Each scenario shows the basic problem first. The relationship stakes, outside accountability, urgency, and emotional heat are available when you open the context drawer.</p>
+      </div>
+      <div class="content scenario-layout">
+        <div class="scenario-list" id="scenarioList"></div>
+        <div class="scenario-main">
+          <div class="card blue">
+            <div class="tiny-label" id="scenarioType">Scenario</div>
+            <h3 id="scenarioTitle"></h3>
+            <p id="scenarioPrompt"></p>
+            <div class="context-row" id="scenarioChips"></div>
+            <button class="toggle-btn" id="contextToggle" type="button">Show relationship + accountability context</button>
+            <div class="context-panel" id="contextPanel"></div>
+          </div>
+
+          <div class="card soft style-choice-panel">
+            <div class="tiny-label">Try a response style</div>
+            <div class="style-row" id="scenarioStyleButtons"></div>
+            <div class="response-card">
+              <div class="sample-line" id="scenarioSample"></div>
+              <div class="response-grid">
+                <div class="response-block"><b>What it protects</b><span id="scenarioProtects"></span></div>
+                <div class="response-block"><b>What it risks</b><span id="scenarioRisks"></span></div>
+                <div class="response-block"><b>Strong fit when</b><span id="scenarioStrong"></span></div>
+                <div class="response-block"><b>Weak fit when</b><span id="scenarioWeak"></span></div>
+              </div>
+              <div class="response-block"><b>Relationship/accountability lens</b><span id="scenarioLens"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="quiz">
+      <div class="section-head">
+        <div class="section-tag">🧠 Knowledge check</div>
+        <h2>Read the context before choosing.</h2>
+        <p>After each answer, you will see why the correct choice fits and why the other choices do not. You must acknowledge the feedback before moving on.</p>
+      </div>
+      <div class="content quiz-layout">
+        <div class="quiz-sticky">
+          <div class="card violet">
+            <div class="tiny-label">Progress</div>
+            <p class="quiz-meta" id="quizMeta">Question 1</p>
+            <div class="progress-track"><div class="progress-fill" id="quizProgress"></div></div>
+          </div>
+          <div class="card soft">
+            <h3>How to reason</h3>
+            <p>Do not choose the style that sounds nicest. Choose the style that best fits the situation’s goal stakes, relationship stakes, urgency, emotional heat, and accountability.</p>
+          </div>
+          <div class="score-card" id="scoreCard"></div>
+        </div>
+
+        <div class="card question-card">
+          <div class="tiny-label" id="questionLabel">Question</div>
+          <div class="question-text" id="questionText"></div>
+          <div class="question-facts" id="questionFacts"></div>
+          <div class="answer-options" id="answerOptions"></div>
+          <div class="feedback-panel" id="feedbackPanel"></div>
+          <div class="ack-row">
+            <button class="ack-btn" id="ackBtn" type="button" style="display:none;">I reviewed the feedback</button>
+            <button class="next-btn" id="nextBtn" type="button">Next question</button>
+            <button class="reset-btn" id="resetBtn" type="button">Restart quiz</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="reflect">
+      <div class="section-head">
+        <div class="section-tag">✍️ Reflection</div>
+        <h2>What style do you overuse?</h2>
+        <p>Pick the style that most often becomes your default under pressure. The goal is not to judge the style. The goal is to know when to stretch.</p>
+      </div>
+      <div class="content reflection-grid">
+        <div class="card soft">
+          <div class="style-filter-row" id="reflectionButtons"></div>
+        </div>
+        <div class="card rose reflection-output">
+          <div class="section-tag" id="reflectionTitle">Choose a style</div>
+          <p id="reflectionText">Your stretch move will appear here.</p>
+          <div class="response-block"><b>Write for one minute</b><span id="reflectionPrompt">Describe one situation where your default style helped and one where it cost you something.</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer shell">Standalone webpage · built for browser use and classroom sharing</div>
+
+  <script>
+    const styles = {
+      competing: {
+        label: 'Competing', icon: '🛡️', colorClass: 'competing',
+        short: 'Clear, firm, and outcome-focused.',
+        summary: 'Competing protects the outcome, the boundary, the rule, or the standard. It is not automatically rude; it becomes a problem when force replaces judgment.',
+        quote: '“This needs to happen, and we need to be clear about it.”',
+        protects: 'The task, boundary, safety standard, policy, or decision speed.',
+        works: 'Urgent situations, safety issues, repeated noncompliance, unfair pressure, or moments when ambiguity would create harm.',
+        backfires: 'When the issue needs buy-in, relationship repair, learning, or shared ownership.',
+        sounds: '“I hear the concern, but this deadline is not optional. Here is what has to happen next.”',
+        stretch: 'Add one question before the firm statement. Example: “What is blocking this?” Then state the boundary clearly.'
+      },
+      collaborating: {
+        label: 'Collaborating', icon: '🤝', colorClass: 'collaborating',
+        short: 'Solves the deeper problem while protecting the relationship.',
+        summary: 'Collaborating protects both the outcome and the relationship. It works best when the issue matters enough to deserve time and honest problem-solving.',
+        quote: '“Let’s slow down and solve the real problem together.”',
+        protects: 'Long-term trust, shared ownership, learning, and durable solutions.',
+        works: 'Important issues where both sides have valid concerns and there is enough time to diagnose the real problem.',
+        backfires: 'When time is too short, the other person refuses good-faith engagement, or a clear boundary is needed first.',
+        sounds: '“I want to understand what is happening and find a way forward that protects both the work and the relationship.”',
+        stretch: 'Know when not every disagreement needs a full process. Sometimes the best first move is a simpler boundary or compromise.'
+      },
+      compromising: {
+        label: 'Compromising', icon: '⚖️', colorClass: 'compromising',
+        short: 'Finds a workable middle path.',
+        summary: 'Compromising protects progress when nobody can get everything. It is useful when time is limited and both sides can reasonably give something up.',
+        quote: '“What can each of us adjust so this can move forward?”',
+        protects: 'Speed, fairness, practicality, and enough agreement to keep moving.',
+        works: 'Moderate-to-high stakes, limited time, and situations where a partial win is acceptable.',
+        backfires: 'When splitting the difference avoids the real problem or sacrifices a nonnegotiable standard.',
+        sounds: '“Could we each adjust part of the plan so neither side carries the whole cost?”',
+        stretch: 'Ask whether the issue is actually a boundary or root-cause problem before settling for the middle.'
+      },
+      avoiding: {
+        label: 'Avoiding', icon: '🌫️', colorClass: 'avoiding',
+        short: 'Pauses, delays, or chooses not to engage right now.',
+        summary: 'Avoiding protects timing and emotional control. It is strategic when the moment is wrong; it is costly when it becomes disappearance.',
+        quote: '“This is not the right moment. Let’s return to it with a clearer head.”',
+        protects: 'Composure, timing, information gathering, and prevention of unnecessary escalation.',
+        works: 'Low-stakes issues, overheated moments, bad timing, or situations where more information is needed.',
+        backfires: 'When the issue keeps recurring, people need clarity, or silence increases mistrust.',
+        sounds: '“I do not want to handle this badly. Can we pause and come back to it tomorrow at 10?”',
+        stretch: 'Pair the pause with a return time. Avoiding becomes more responsible when it includes a plan.'
+      },
+      accommodating: {
+        label: 'Accommodating', icon: '💗', colorClass: 'accommodating',
+        short: 'Yields to preserve goodwill or meet the other person’s need.',
+        summary: 'Accommodating protects harmony, generosity, and relationship goodwill. It is not weakness when the issue is low-cost or matters more to the other person.',
+        quote: '“I can let this go because the relationship matters more right now.”',
+        protects: 'Goodwill, care, relational repair, and another person’s higher-stakes need.',
+        works: 'Low-stakes issues, moments where the other person clearly has more at stake, or when goodwill is strategically valuable.',
+        backfires: 'When you keep yielding on issues that actually matter, creating resentment or unclear expectations.',
+        sounds: '“This matters more to you than it does to me, so I am okay going with your preference.”',
+        stretch: 'Name your limit. Accommodation should be a choice, not self-erasure.'
+      }
+    };
+
+    const styleOrder = ['competing', 'collaborating', 'compromising', 'avoiding', 'accommodating'];
+
+    const challenge = {
+      choices: [
+        { style: 'competing', text: 'Set a firm deadline and reassign the work if it is not done.', ok: false },
+        { style: 'collaborating', text: 'Ask what is blocking the work, set a clear plan, and protect the final deadline.', ok: true },
+        { style: 'avoiding', text: 'Wait until after the presentation to address the missed deadlines.', ok: false },
+        { style: 'accommodating', text: 'Cover the missing work yourself so the teammate does not feel attacked.', ok: false }
+      ],
+      feedback: {
+        competing: 'Competing may become necessary if the teammate refuses to act, but as a first move it skips diagnosis. There is still enough time to combine accountability with problem-solving.',
+        collaborating: 'Strong first move. The relationship still matters, the client deadline matters, and there is enough time to ask what is happening while setting a clear plan.',
+        avoiding: 'Avoiding could lower tension temporarily, but the deadline and manager/client visibility make silence too risky as the first move.',
+        accommodating: 'Accommodating protects harmony, but it may reward the pattern and overload the responsible teammates.'
+      }
+    };
+
+    const sliderData = [
+      { id: 'outcome', label: 'Outcome stakes', low: 'Low', high: 'High', value: 72, hint: 'How much does the actual result matter?', examples: 'Low: choosing a meeting snack. Medium: deciding who drafts the first version of a report. High: safety, grades, client trust, legal/policy obligations, or major deadlines.' },
+      { id: 'relationship', label: 'Relationship stakes', low: 'Low', high: 'High', value: 74, hint: 'How important is ongoing trust with this person or group?', examples: 'Low: one-time vendor exchange. Medium: coworker you sometimes interact with. High: team member, supervisor, direct report, close colleague, or anyone whose trust affects future work.' },
+      { id: 'urgency', label: 'Urgency', low: 'Later', high: 'Now', value: 48, hint: 'How quickly does something need to happen?', examples: 'Low: discussion can wait a week. Medium: decision needed in a day or two. High: customer is waiting, deadline is imminent, harm is happening, or the meeting is already underway.' },
+      { id: 'heat', label: 'Emotional heat', low: 'Calm', high: 'Hot', value: 42, hint: 'How emotionally charged is the interaction?', examples: 'Low: people disagree but can listen. Medium: defensiveness, embarrassment, impatience, or visible frustration. High: raised voices, public humiliation, threats, tears, shutdown, sarcasm, or people no longer processing information.' },
+      { id: 'accountability', label: 'Outside accountability', low: 'Private', high: 'Visible', value: 68, hint: 'Who else will be affected or evaluate the outcome?', examples: 'Low: private preference with little consequence. Medium: team workflow or peer evaluation. High: professor, manager, client, customer, policy, public audience, compliance issue, or documented performance concern.' }
+    ];
+
+    const heatMeanings = [
+      { max: 25, text: 'Low heat: people can still listen, ask questions, and process nuance.' },
+      { max: 55, text: 'Moderate heat: frustration or embarrassment is present, so the wording matters and the first sentence can either lower or raise defensiveness.' },
+      { max: 80, text: 'High heat: people may start protecting pride instead of solving the issue. A pause, reset, or very clear boundary may be needed before deeper discussion.' },
+      { max: 100, text: 'Extreme heat: the conversation is no longer productive. Safety, dignity, and de-escalation come before problem-solving.' }
+    ];
+
+    const scenarios = {
+      missedDeadline: {
+        type: 'Team accountability',
+        title: 'The reliable teammate stops delivering',
+        tab: 'Missed deadline',
+        prompt: 'A usually reliable coworker missed two internal deadlines for a shared client deck. The team is frustrated, but nobody has asked what is happening yet.',
+        chips: ['Relationship: important', 'Accountability: client + manager', 'Urgency: 36 hours', 'Heat: moderate'],
+        context: {
+          Relationship: 'You work with this person every week. Trust matters, and the teammate is not usually careless.',
+          Accountability: 'Your manager expects an update tomorrow morning, and the client presentation is visible outside the team.',
+          Urgency: 'There is still enough time to fix the work, but not enough time for vague promises.',
+          Emotion: 'The group is irritated. The teammate seems embarrassed and avoidant.'
+        },
+        responses: {
+          competing: ['“We need your slides by 5 p.m. If they are not ready, I am reassigning the section so the client deck is protected.”', 'The final deliverable and the team’s credibility.', 'It may corner someone who is already struggling and reduce trust.', 'The person refuses accountability or the deadline is about to fail.', 'There is still time to diagnose the blocker and keep the relationship intact.', 'Because the teammate is usually reliable, a purely forceful move may be premature unless they continue to avoid responsibility.'],
+          collaborating: ['“This is now affecting the client deck, and we need a real plan. What is blocking your section, and what can we adjust today so the work is done by 5?”', 'Both the client outcome and the ongoing working relationship.', 'It takes more time than simply reassigning the work.', 'The relationship matters and there is still enough time to solve the actual blocker.', 'The person has already ignored several clear attempts to help.', 'This fits the mixed stakes: relationship is important, accountability is real, and the timeline is tight but not yet impossible.'],
+          compromising: ['“Let’s split the remaining work. You finish the data slide and I will handle formatting, but we both send final pieces by 7.”', 'Momentum and fairness under time pressure.', 'It may solve the deck without addressing the pattern behind the missed deadlines.', 'The team mainly needs a workable plan before the deadline.', 'The missed deadlines are part of a recurring accountability problem.', 'Useful as a practical rescue move, especially if collaboration produces a clear division of labor quickly.'],
+          avoiding: ['“Let’s not get into the conflict now. We can finish the deck first and talk after the presentation.”', 'Short-term emotional control.', 'The team may lose more time and the client deliverable may suffer.', 'The group is too heated to speak productively and someone sets a specific return time.', 'The work is still missing and silence lets the risk grow.', 'A brief pause could help, but avoiding the issue entirely is risky because outside accountability is high.'],
+          accommodating: ['“I will cover your section this time so the deck gets done.”', 'Harmony and immediate relief for the teammate.', 'It may overload you and teach the team that missed work quietly gets absorbed.', 'This is a rare emergency and the cost to you is genuinely manageable.', 'The pattern is recurring or the team needs transparent accountability.', 'Accommodation may protect the person from embarrassment, but it does not protect the system if the work keeps being shifted silently.']
+        }
+      },
+      bluntFeedback: {
+        type: 'Power + feedback',
+        title: 'A manager gives blunt feedback in front of others',
+        tab: 'Blunt feedback',
+        prompt: 'During a project meeting, your manager says, “Your presentation structure is confusing,” in front of the team. You want to improve, but the public delivery felt undermining.',
+        chips: ['Relationship: high', 'Power: manager', 'Urgency: low', 'Heat: embarrassment'],
+        context: {
+          Relationship: 'You report to this person and need a productive working relationship over time.',
+          Accountability: 'The feedback may affect future assignments and performance impressions.',
+          Urgency: 'The issue does not need to be resolved in the meeting itself.',
+          Emotion: 'You feel embarrassed, but you also know the presentation may actually need work.'
+        },
+        responses: {
+          competing: ['“I disagree with how you handled that feedback publicly. That was not appropriate.”', 'Dignity and a boundary around public criticism.', 'It can escalate quickly because of the power difference and public setting.', 'The manager’s behavior is part of a repeated pattern or clearly crosses a line.', 'You still need specific guidance and the meeting is not the right place for a confrontation.', 'A boundary may be valid, but timing and power matter. A private follow-up may be more strategic.'],
+          collaborating: ['“I want to improve the structure, and I also want to talk about how the feedback landed. Could we review examples one-on-one?”', 'Learning, dignity, and the supervisor relationship.', 'It requires the manager to be willing to engage constructively.', 'You need the relationship and the outcome, and there is time for a private conversation.', 'The manager is abusive or unsafe to approach without support.', 'This fits because the goal is not only to defend yourself; it is to improve the work and reset the feedback process.'],
+          compromising: ['“I can revise the structure. For future feedback, could you flag the main issue privately first when possible?”', 'A practical improvement plus a modest process request.', 'It may not fully address the public embarrassment or power issue.', 'You want a concise reset without a long conversation.', 'The public criticism is severe or repeated.', 'This is a reasonable middle path if the manager is receptive and the relationship is generally workable.'],
+          avoiding: ['“Thank you. I will look at it.” Then you wait until later to respond more fully.', 'Composure in the public moment.', 'If you never follow up, the process issue remains unresolved.', 'You are too embarrassed to respond well in front of the group.', 'The private follow-up never happens.', 'Avoiding is useful as a temporary pause because public defensiveness could worsen the situation.'],
+          accommodating: ['“You are right. I will fix it.”', 'Immediate harmony and appearing coachable.', 'It may hide the real problem: the feedback may be useful, but the delivery was not.', 'The comment is mild and you genuinely do not need to address the delivery.', 'You leave the meeting feeling diminished and the pattern continues.', 'Accommodation can smooth the moment, but repeated accommodation to public criticism can normalize poor feedback practice.']
+        }
+      },
+      vacation: {
+        type: 'Fairness + resources',
+        title: 'Two coworkers need the same week off',
+        tab: 'Vacation conflict',
+        prompt: 'Two coworkers request the same vacation week. One has nonrefundable tickets. The other has family visiting internationally for the first time in years. The team can approve only one full absence.',
+        chips: ['Relationship: ongoing', 'Accountability: policy fairness', 'Urgency: end of day', 'Heat: personal stakes'],
+        context: {
+          Relationship: 'They are peers who will continue working together after the decision.',
+          Accountability: 'The supervisor must apply a policy that other employees will see as precedent.',
+          Urgency: 'A decision is needed today because schedules must be finalized.',
+          Emotion: 'Both have legitimate personal reasons, and both may feel hurt by the outcome.'
+        },
+        responses: {
+          competing: ['“I submitted mine first, and the policy says first approved request gets priority.”', 'Clarity, policy, and precedent.', 'It may feel cold when both people have meaningful personal stakes.', 'Policy must be applied consistently and no alternative exists.', 'There is room to create a partial solution without undermining fairness.', 'Competing may be needed if policy is decisive, but fairness also includes how the decision affects trust.'],
+          collaborating: ['“Let’s map what each person actually needs that week and see if there is a coverage plan that protects both as much as possible.”', 'Relationship, fairness, and creative problem-solving.', 'It may not produce a full solution by the deadline.', 'There is flexibility in coverage, remote work, partial days, or shift trades.', 'Policy allows no discretion and time is already gone.', 'Collaboration is strong because both claims are legitimate and the relationship continues.'],
+          compromising: ['“Could one person take the first half of the week and the other take the second, with shift trades to reduce the loss?”', 'A workable partial solution under a real constraint.', 'Neither person gets the ideal week.', 'A full win is impossible but both can preserve something important.', 'One person’s need is truly all-or-nothing.', 'Compromising may be the best practical fit if collaboration confirms there is no full solution.'],
+          avoiding: ['“I do not want to get in the middle. Let’s wait and see if the supervisor decides.”', 'Avoids direct peer tension.', 'It can feel evasive and leave people anxious.', 'The peers are too heated and the decision properly belongs to a supervisor.', 'Delay makes scheduling worse.', 'A pause may be okay, but the policy/accountability issue cannot simply disappear.'],
+          accommodating: ['“You take the week. Your family situation matters more right now.”', 'Goodwill and the other person’s higher personal need.', 'The person yielding may feel resentful later, especially if the sacrifice is large.', 'The yielding person genuinely can adjust without major harm.', 'They are agreeing only to avoid conflict.', 'Accommodation can be generous here, but it should be explicit and voluntary, not pressured.']
+        }
+      },
+      meetingDominance: {
+        type: 'Team norms',
+        title: 'A senior coworker keeps interrupting a junior colleague',
+        tab: 'Interruptions',
+        prompt: 'In a client prep meeting, a senior coworker repeatedly talks over a junior colleague who owns the data analysis. The junior colleague stops contributing.',
+        chips: ['Relationship: team trust', 'Accountability: client quality', 'Urgency: in the meeting', 'Heat: rising'],
+        context: {
+          Relationship: 'The senior coworker is influential, and the junior colleague needs psychological safety to keep contributing.',
+          Accountability: 'The client presentation depends on accurate data interpretation.',
+          Urgency: 'The interruption is happening now and is changing the quality of the meeting.',
+          Emotion: 'The junior colleague looks shut down. Others are uncomfortable but silent.'
+        },
+        responses: {
+          competing: ['“Hold on. I want to hear the rest of Maya’s analysis before we respond.”', 'The meeting norm, the junior colleague’s voice, and decision quality.', 'The senior coworker may feel called out if the tone is too sharp.', 'A harmful dynamic is happening in real time and silence would reinforce it.', 'A private conversation would be enough and no immediate harm is occurring.', 'This is a strong use of competing because it sets a boundary in the moment without attacking the person.'],
+          collaborating: ['“I think we are talking past the data owner. Can we pause and make sure we understand Maya’s analysis before deciding?”', 'The relationship and the quality of group reasoning.', 'It may be too gentle if the interruption continues.', 'The group can reset quickly and the senior coworker is likely to respond well.', 'The junior colleague is actively being silenced and a firmer boundary is needed.', 'Collaboration can work if framed as improving the meeting rather than blaming one person.'],
+          compromising: ['“Let’s give Maya two minutes to finish, then we will open it up for concerns.”', 'A fair process and forward movement.', 'It may treat repeated interruption as a simple time-allocation issue.', 'The goal is to restore structure without escalating.', 'There is a pattern of undermining that needs direct accountability.', 'This is practical, especially as an immediate facilitation move.'],
+          avoiding: ['You decide not to say anything during the meeting and plan to check in afterward.', 'Avoids public tension with the senior coworker.', 'The junior colleague remains unsupported in the moment.', 'The meeting is not affected and a private follow-up will be more effective.', 'The interruption is shaping the outcome right now.', 'Avoiding is weak here if the silence allows the problem to continue in front of everyone.'],
+          accommodating: ['You let the senior coworker continue because they have more experience.', 'Harmony with the senior person.', 'The team loses information and the junior colleague may stop speaking up.', 'The senior person’s input is genuinely urgent and the junior colleague is not being dismissed.', 'Status is being used to silence relevant expertise.', 'Accommodation is risky because the relationship that needs protection is not only with the senior coworker; it is also with the team and the work.']
+        }
+      },
+      policyShortcut: {
+        type: 'Safety + policy',
+        title: 'Someone suggests skipping a required check',
+        tab: 'Policy shortcut',
+        prompt: 'A coworker suggests skipping a required quality check to ship faster. They say, “We have done it before and nothing bad happened.” A customer will use the output tomorrow.',
+        chips: ['Relationship: moderate', 'Accountability: customer + policy', 'Urgency: immediate', 'Heat: defensive'],
+        context: {
+          Relationship: 'You need to work with this coworker again, but the relationship cannot override customer risk.',
+          Accountability: 'There is a required quality process, and a customer will rely on the result.',
+          Urgency: 'The decision is happening now before shipment.',
+          Emotion: 'The coworker feels pressured and defensive about speed.'
+        },
+        responses: {
+          competing: ['“No. We are not skipping the required check. We can discuss speed, but the quality step has to happen.”', 'Customer safety, policy compliance, and the standard of work.', 'The coworker may feel blocked or embarrassed.', 'The issue involves safety, policy, compliance, or customer harm.', 'The rule is flexible and there is no meaningful risk.', 'This is the cleanest fit because high accountability and immediate risk require a clear boundary.'],
+          collaborating: ['“I understand the time pressure. Let’s figure out the fastest way to complete the required check without skipping it.”', 'Compliance plus the coworker’s legitimate time pressure.', 'It should not sound like the required step is optional.', 'You can keep the boundary while solving the speed problem.', 'The coworker interprets discussion as permission to skip the check.', 'Collaboration works after the nonnegotiable is clear. The boundary comes first.'],
+          compromising: ['“Could we do a shorter version of the check and ship most of it?”', 'Speed and partial compliance.', 'It may weaken a required standard.', 'The requirement genuinely allows a scaled process.', 'The check is mandatory and tied to customer risk.', 'Compromise is dangerous if it splits the difference on a nonnegotiable.'],
+          avoiding: ['You say nothing because you do not want to make the coworker defensive.', 'Short-term harmony.', 'Customer risk remains and silence may make you complicit.', 'Someone else with authority is already stopping the shipment.', 'You are the person who notices the risk and no one else is acting.', 'Avoiding is weak here because outside accountability and customer impact are high.'],
+          accommodating: ['“Okay, we can skip it this time if you think it is fine.”', 'The coworker’s preference and immediate speed.', 'It sacrifices a required standard and creates risk.', 'Almost never, unless the requirement truly does not apply.', 'The shortcut affects customers, policy, or safety.', 'Accommodation is the wrong fit when the other person’s preference conflicts with a required standard.']
+        }
+      }
+    };
+
+    const quizQuestions = [
+      {
+        question: 'A coworker wants to skip a required quality check to ship faster. A customer will rely on the output tomorrow, and the process is mandatory. What is the best first style?',
+        facts: { 'Outcome stakes': 'High: customer impact', 'Relationship': 'Moderate', 'Urgency': 'Immediate', 'Accountability': 'Policy + customer visible' },
+        correct: 'competing',
+        explanations: {
+          competing: 'Correct. A clear boundary fits because the quality check is mandatory and customer impact is high. You can still be respectful, but the standard cannot be negotiated away.',
+          collaborating: 'Partly useful after the boundary is set. You can collaborate on how to complete the check quickly, but not on whether to skip it.',
+          compromising: 'Weak fit. Splitting the difference on a required safety or quality step can undermine the very standard that protects the customer.',
+          avoiding: 'Weak fit. Silence allows the risk to continue and may make you part of the problem.',
+          accommodating: 'Weak fit. Preserving harmony is not enough when the other person’s preference conflicts with policy and customer risk.'
+        }
+      },
+      {
+        question: 'A usually reliable teammate misses two milestones. The final presentation is in three days. The relationship matters, and you still have time to understand the blocker while setting a clear plan. What is the best first style?',
+        facts: { 'Outcome stakes': 'High', 'Relationship': 'High', 'Urgency': 'Moderate-high', 'Accountability': 'Team grade/client visible' },
+        correct: 'collaborating',
+        explanations: {
+          competing: 'Could become necessary later, but as a first move it may skip the reason a normally reliable teammate is failing. The situation still allows diagnosis plus accountability.',
+          collaborating: 'Correct. This style protects both the work and the relationship. It lets you ask what is blocking progress while creating a concrete plan.',
+          compromising: 'May help once the blocker is known, but it is not enough by itself if the real issue is unclear.',
+          avoiding: 'Weak fit. The deadline and outside accountability make waiting too risky.',
+          accommodating: 'Weak fit. Covering the work may rescue the deadline but can hide the pattern and overload others.'
+        }
+      },
+      {
+        question: 'A meeting becomes heated. The decision is not due until next week, and people have stopped listening to one another. What is the best first style?',
+        facts: { 'Outcome stakes': 'Medium', 'Relationship': 'High', 'Urgency': 'Low', 'Emotional heat': 'High' },
+        correct: 'avoiding',
+        explanations: {
+          competing: 'Weak fit as a first move. A firm decision is not needed now, and force may escalate the heat.',
+          collaborating: 'Good eventual goal, but not the best first move while people cannot listen. Collaboration requires enough emotional bandwidth to think together.',
+          compromising: 'Premature. A rushed middle ground may be accepted just to escape the tension, not because it solves the issue.',
+          avoiding: 'Correct, if it is a strategic pause with a return plan. The point is not to disappear; it is to reset timing so the later conversation can work.',
+          accommodating: 'Weak fit. Yielding just to reduce tension may sacrifice a real concern without resolving anything.'
+        }
+      },
+      {
+        question: 'Two peers both need the same week off. Both reasons are legitimate, the policy allows some flexibility, and the schedule must be finalized today. A partial split may protect something important for both. What style fits best?',
+        facts: { 'Outcome stakes': 'Medium-high', 'Relationship': 'Ongoing peer relationship', 'Urgency': 'Today', 'Accountability': 'Fairness precedent' },
+        correct: 'compromising',
+        explanations: {
+          competing: 'May be needed if policy decides the case, but here the policy allows flexibility and both claims are legitimate.',
+          collaborating: 'Useful if there is time to explore creative coverage, but the prompt points to a practical partial split under a same-day deadline.',
+          compromising: 'Correct. A workable middle path can protect fairness and preserve part of each person’s need when a full win is unlikely.',
+          avoiding: 'Weak fit. The schedule must be finalized today, so delay creates more problems.',
+          accommodating: 'Could be generous if one person genuinely chooses it, but it should not be the default solution when both have serious needs.'
+        }
+      },
+      {
+        question: 'Your manager gives blunt but potentially useful feedback in front of others. You feel embarrassed, but the issue does not need to be resolved publicly. You want both clearer guidance and a better feedback process. What style fits best for the follow-up?',
+        facts: { 'Outcome stakes': 'Growth + performance', 'Relationship': 'High: supervisor', 'Urgency': 'Low', 'Emotional heat': 'Embarrassment' },
+        correct: 'collaborating',
+        explanations: {
+          competing: 'A boundary may be valid if the public criticism is repeated or harmful, but the best follow-up here combines learning with process repair.',
+          collaborating: 'Correct. It lets you ask for specific examples while also addressing how the feedback was delivered.',
+          compromising: 'Could work as a brief reset, but it may not fully address both the improvement need and the feedback process.',
+          avoiding: 'Useful only as a temporary pause in the public moment. If you never follow up, neither issue is resolved.',
+          accommodating: 'Weak if it means accepting the feedback delivery without asking for the support you need to improve.'
+        }
+      },
+      {
+        question: 'A senior coworker repeatedly interrupts a junior colleague who owns the data. The meeting is happening now, and the client recommendation depends on hearing the data accurately. What is the best first style from the meeting lead?',
+        facts: { 'Outcome stakes': 'High: decision quality', 'Relationship': 'Team trust', 'Urgency': 'Immediate', 'Accountability': 'Client-facing work' },
+        correct: 'competing',
+        explanations: {
+          competing: 'Correct. A firm process boundary such as “Hold on, I want to hear the rest of Maya’s analysis” protects the work and the team norm in real time.',
+          collaborating: 'Useful after the meeting or if the senior coworker responds well to a softer reset, but the interruption is happening now.',
+          compromising: 'A structured turn-taking compromise can help, but the first move still needs to stop the silencing dynamic clearly.',
+          avoiding: 'Weak fit. Waiting leaves the junior colleague unsupported and may distort the client recommendation.',
+          accommodating: 'Weak fit. Yielding to seniority protects the wrong relationship and sacrifices relevant expertise.'
+        }
+      },
+      {
+        question: 'A colleague strongly prefers one low-stakes design option. You have a mild preference for the other, but the issue matters much more to them and the relationship has been tense lately. What style fits best?',
+        facts: { 'Outcome stakes': 'Low', 'Relationship': 'Important', 'Urgency': 'Low', 'Emotional heat': 'Mild tension' },
+        correct: 'accommodating',
+        explanations: {
+          competing: 'Too forceful for a low-stakes issue that matters more to the other person.',
+          collaborating: 'Possible, but it may over-process a small issue when yielding is low-cost and relationally useful.',
+          compromising: 'Possible, but unnecessary if your own stake is genuinely low.',
+          avoiding: 'Not the strongest fit because a simple relational gesture can resolve the issue cleanly.',
+          accommodating: 'Correct. Yielding can be strategic and generous when the cost is low and the goodwill matters.'
+        }
+      },
+      {
+        question: 'Two departments keep blaming each other for recurring handoff errors. The next deadline is not immediate, and both teams will continue working together all semester. What style fits best?',
+        facts: { 'Outcome stakes': 'High recurring issue', 'Relationship': 'High interdependence', 'Urgency': 'Not immediate', 'Accountability': 'Shared performance' },
+        correct: 'collaborating',
+        explanations: {
+          competing: 'May stop one behavior temporarily, but it will not diagnose the system problem across departments.',
+          collaborating: 'Correct. Recurring handoff errors require shared diagnosis, role clarity, and a durable process.',
+          compromising: 'May create a quick patch, but splitting duties differently may not fix the underlying handoff failure.',
+          avoiding: 'Weak fit. The issue is recurring and will continue affecting both teams.',
+          accommodating: 'Weak fit. One department absorbing the burden can create resentment and hide the process problem.'
+        }
+      },
+      {
+        question: 'A coworker sends a harsh email. You are angry and tempted to reply immediately. The issue is important, but no action is needed until tomorrow. What is the best first style?',
+        facts: { 'Outcome stakes': 'Important', 'Relationship': 'Ongoing', 'Urgency': 'Low until tomorrow', 'Emotional heat': 'High for you' },
+        correct: 'avoiding',
+        explanations: {
+          competing: 'A firm response may be needed later, but replying while angry may escalate and weaken your message.',
+          collaborating: 'A good eventual goal, but high heat makes immediate collaboration less likely to work.',
+          compromising: 'Premature. You may give up something just to end the discomfort.',
+          avoiding: 'Correct as a temporary pause. Waiting until tomorrow protects the conversation, as long as you actually return to the issue.',
+          accommodating: 'Weak fit. Letting it go simply because the email was uncomfortable may leave an important issue unresolved.'
+        }
+      },
+      {
+        question: 'A client asks for a change that would improve their experience but would overload your team this week. The relationship is valuable, the request matters, and the deadline is tight. You need a realistic partial solution. What style fits best?',
+        facts: { 'Outcome stakes': 'High', 'Relationship': 'High: client', 'Urgency': 'High', 'Accountability': 'Team capacity' },
+        correct: 'compromising',
+        explanations: {
+          competing: 'A firm no may be necessary if the request is impossible, but the prompt asks for a realistic partial solution.',
+          collaborating: 'Could be ideal with more time, but urgency and capacity limits make a practical tradeoff more realistic.',
+          compromising: 'Correct. A partial solution can protect the client relationship without pretending the team has unlimited capacity.',
+          avoiding: 'Weak fit. The client needs an answer, and silence can damage trust.',
+          accommodating: 'Weak fit if it means overloading the team and creating hidden costs to satisfy the client.'
+        }
+      }
+    ];
+
+    let activeStyle = 'collaborating';
+    let activeScenario = 'missedDeadline';
+    let activeScenarioStyle = 'collaborating';
+    let quizIndex = 0;
+    let quizScore = 0;
+    let quizAnswered = false;
+    let quizSelected = null;
+
+    function byId(id) { return document.getElementById(id); }
+
+    function renderChallenge() {
+      const wrap = byId('challengeOptions');
+      const feedback = byId('challengeFeedback');
+      wrap.innerHTML = '';
+      challenge.choices.forEach((choice) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.type = 'button';
+        btn.setAttribute('aria-pressed', 'false');
+        btn.innerHTML = `<span>${styles[choice.style].icon} ${choice.text}</span><strong>${styles[choice.style].label}</strong>`;
+        btn.addEventListener('click', () => {
+          wrap.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+          btn.setAttribute('aria-pressed', 'true');
+          feedback.className = 'challenge-feedback show';
+          feedback.innerHTML = `<strong>${choice.ok ? 'Good fit.' : 'Not the strongest first move.'}</strong><p>${challenge.feedback[choice.style]}</p>`;
+        });
+        wrap.appendChild(btn);
+      });
+    }
+
+    function renderStyles() {
+      const grid = byId('styleGrid');
+      grid.innerHTML = '';
+      styleOrder.forEach((key) => {
+        const s = styles[key];
+        const card = document.createElement('button');
+        card.className = `style-card ${s.colorClass}${key === activeStyle ? ' active' : ''}`;
+        card.type = 'button';
+        card.innerHTML = `<div class="icon">${s.icon}</div><strong>${s.label}</strong><span>${s.short}</span>`;
+        card.addEventListener('click', () => {
+          activeStyle = key;
+          renderStyles();
+        });
+        grid.appendChild(card);
+      });
+      const s = styles[activeStyle];
+      byId('styleDetailTag').textContent = `${s.icon} ${s.label}`;
+      byId('styleQuote').textContent = s.quote;
+      byId('styleSummary').textContent = s.summary;
+      const rows = [
+        ['Protects', s.protects],
+        ['Works when', s.works],
+        ['Backfires when', s.backfires],
+        ['Might sound like', s.sounds]
+      ];
+      byId('styleDetailRows').innerHTML = rows.map(([label, text]) => `<div class="detail-row"><b>${label}</b><span>${text}</span></div>`).join('');
+    }
+
+    function renderSliders() {
+      const wrap = byId('sliderCard');
+      wrap.innerHTML = '';
+      sliderData.forEach((item) => {
+        const row = document.createElement('div');
+        row.className = 'slider-row';
+        row.innerHTML = `
+          <div class="slider-head">
+            <div class="slider-title"><strong>${item.label}</strong><small>${item.hint}</small></div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button class="toggle-btn" type="button" data-note="${item.id}">examples</button>
+              <div class="slider-value" id="${item.id}Value">${item.value}</div>
+            </div>
+          </div>
+          <input type="range" min="0" max="100" value="${item.value}" id="${item.id}Slider" aria-label="${item.label}" />
+          <div class="scale"><span>${item.low}</span><span>${item.high}</span></div>
+          <div class="context-note" id="${item.id}Note">${item.examples}</div>
+        `;
+        wrap.appendChild(row);
+      });
+      sliderData.forEach((item) => {
+        byId(`${item.id}Slider`).addEventListener('input', () => {
+          item.value = Number(byId(`${item.id}Slider`).value);
+          byId(`${item.id}Value`).textContent = item.value;
+          updateRecommendation();
+        });
+      });
+      wrap.querySelectorAll('[data-note]').forEach((btn) => {
+        btn.addEventListener('click', () => byId(`${btn.dataset.note}Note`).classList.toggle('show'));
+      });
+      updateRecommendation();
+    }
+
+    function getSlider(id) { return sliderData.find((s) => s.id === id).value; }
+
+    function recommendStyle() {
+      const outcome = getSlider('outcome');
+      const relationship = getSlider('relationship');
+      const urgency = getSlider('urgency');
+      const heat = getSlider('heat');
+      const accountability = getSlider('accountability');
+
+      if ((accountability >= 78 && outcome >= 70 && urgency >= 62) || (outcome >= 84 && urgency >= 78)) {
+        return ['competing', 'High stakes plus visible accountability or urgency usually require a clear boundary first. You can still collaborate after the nonnegotiable is protected.'];
+      }
+      if (heat >= 76 && urgency <= 58) {
+        return ['avoiding', 'The issue may matter, but the emotional heat is too high for good reasoning. A temporary pause with a return plan is the best first move.'];
+      }
+      if (outcome >= 65 && relationship >= 65 && urgency <= 68 && heat <= 72) {
+        return ['collaborating', 'Both the outcome and the relationship matter, and there is enough room to understand the deeper problem instead of rushing to a shallow fix.'];
+      }
+      if (outcome <= 42 && relationship >= 62) {
+        return ['accommodating', 'Your own stake is relatively low while the relationship matters. Yielding may be a strategic goodwill move if it is truly low-cost.'];
+      }
+      if (outcome <= 42 && relationship <= 45 && accountability <= 45) {
+        return ['avoiding', 'The issue appears low-stakes and low-accountability. It may not deserve more energy right now.'];
+      }
+      if (urgency >= 65 || (outcome >= 55 && relationship >= 45)) {
+        return ['compromising', 'A practical partial solution may be the best fit when time is limited or both sides need a workable path forward.'];
+      }
+      return ['collaborating', 'The situation has enough relationship or outcome importance to benefit from shared problem-solving.'];
+    }
+
+    function updateRecommendation() {
+      const [key, why] = recommendStyle();
+      const s = styles[key];
+      byId('recStyle').textContent = `${s.icon} ${s.label}`;
+      byId('recWhy').textContent = why;
+      byId('recPhrase').textContent = s.sounds;
+      byId('recRisk').textContent = s.backfires;
+      const heat = getSlider('heat');
+      byId('heatMeaning').textContent = heatMeanings.find((h) => heat <= h.max).text;
+      const labels = { outcome: 'Outcome', relationship: 'Relationship', urgency: 'Urgency', heat: 'Heat', accountability: 'Accountability' };
+      byId('profileBars').innerHTML = sliderData.map((item) => `
+        <div class="profile-line">
+          <div class="bar-label"><span>${labels[item.id]}</span><span>${item.value}</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${item.value}%"></div></div>
+        </div>
+      `).join('');
+    }
+
+    function renderScenarios() {
+      const list = byId('scenarioList');
+      list.innerHTML = '';
+      Object.entries(scenarios).forEach(([key, sc]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `scenario-tab${key === activeScenario ? ' active' : ''}`;
+        btn.innerHTML = `<strong>${sc.tab}</strong><small>${sc.type}</small>`;
+        btn.addEventListener('click', () => {
+          activeScenario = key;
+          const defaults = { missedDeadline: 'collaborating', bluntFeedback: 'collaborating', vacation: 'compromising', meetingDominance: 'competing', policyShortcut: 'competing' };
+          activeScenarioStyle = defaults[key] || 'collaborating';
+          byId('contextPanel').classList.remove('show');
+          byId('contextToggle').textContent = 'Show relationship + accountability context';
+          renderScenarios();
+        });
+        list.appendChild(btn);
+      });
+      const sc = scenarios[activeScenario];
+      byId('scenarioType').textContent = sc.type;
+      byId('scenarioTitle').textContent = sc.title;
+      byId('scenarioPrompt').textContent = sc.prompt;
+      byId('scenarioChips').innerHTML = sc.chips.map((chip) => `<span class="context-chip">${chip}</span>`).join('');
+      byId('contextPanel').innerHTML = Object.entries(sc.context).map(([k,v]) => `<div class="context-item"><b>${k}</b><span>${v}</span></div>`).join('');
+      const buttons = byId('scenarioStyleButtons');
+      buttons.innerHTML = '';
+      styleOrder.forEach((key) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `style-btn${key === activeScenarioStyle ? ' active' : ''}`;
+        btn.textContent = `${styles[key].icon} ${styles[key].label}`;
+        btn.addEventListener('click', () => {
+          activeScenarioStyle = key;
+          renderScenarios();
+        });
+        buttons.appendChild(btn);
+      });
+      updateScenarioResponse();
+    }
+
+    function updateScenarioResponse() {
+      const parts = scenarios[activeScenario].responses[activeScenarioStyle];
+      byId('scenarioSample').textContent = parts[0];
+      byId('scenarioProtects').textContent = parts[1];
+      byId('scenarioRisks').textContent = parts[2];
+      byId('scenarioStrong').textContent = parts[3];
+      byId('scenarioWeak').textContent = parts[4];
+      byId('scenarioLens').textContent = parts[5];
+    }
+
+    function renderQuiz() {
+      quizAnswered = false;
+      quizSelected = null;
+      const q = quizQuestions[quizIndex];
+      byId('questionLabel').textContent = `Question ${quizIndex + 1} of ${quizQuestions.length}`;
+      byId('quizMeta').textContent = `Question ${quizIndex + 1} of ${quizQuestions.length} · Score ${quizScore}`;
+      byId('quizProgress').style.width = `${(quizIndex / quizQuestions.length) * 100}%`;
+      byId('questionText').textContent = q.question;
+      byId('questionFacts').innerHTML = Object.entries(q.facts).map(([k,v]) => `<div class="fact"><b>${k}</b><span>${v}</span></div>`).join('');
+      byId('answerOptions').innerHTML = '';
+      styleOrder.forEach((key) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'answer-btn';
+        btn.textContent = `${styles[key].icon} ${styles[key].label}`;
+        btn.addEventListener('click', () => answerQuiz(key));
+        byId('answerOptions').appendChild(btn);
+      });
+      byId('feedbackPanel').className = 'feedback-panel';
+      byId('feedbackPanel').innerHTML = '';
+      byId('ackBtn').style.display = 'none';
+      byId('nextBtn').classList.remove('show');
+      byId('resetBtn').classList.remove('show');
+      byId('scoreCard').classList.remove('show');
+    }
+
+    function answerQuiz(key) {
+      if (quizAnswered) return;
+      quizAnswered = true;
+      quizSelected = key;
+      const q = quizQuestions[quizIndex];
+      if (key === q.correct) quizScore += 1;
+      const optionButtons = [...byId('answerOptions').children];
+      optionButtons.forEach((btn, idx) => {
+        btn.disabled = true;
+        const styleKey = styleOrder[idx];
+        if (styleKey === key) btn.classList.add('selected');
+        btn.setAttribute('aria-label', `${styles[styleKey].label}${styleKey === key ? ', selected' : ''}`);
+      });
+      const selectedLabel = styles[key].label;
+      const correctLabel = styles[q.correct].label;
+      const resultLine = key === q.correct ? `Correct: ${correctLabel}` : `Not quite. You chose ${selectedLabel}; the best fit is ${correctLabel}.`;
+      byId('feedbackPanel').className = 'feedback-panel show';
+      byId('feedbackPanel').innerHTML = `
+        <div class="feedback-title">
+          <strong>${resultLine}</strong>
+          <span>Read the reasoning for every option before moving on.</span>
+        </div>
+        <div class="choice-explanations">
+          ${styleOrder.map((styleKey) => {
+            const status = styleKey === q.correct ? 'correct' : (styleKey === key ? 'selected-wrong' : '');
+            const prefix = styleKey === q.correct ? 'Best fit' : (styleKey === key ? 'Your choice' : 'Why not');
+            return `<div class="choice-explanation ${status}"><b>${styles[styleKey].icon} ${styles[styleKey].label} · ${prefix}</b><p>${q.explanations[styleKey]}</p></div>`;
+          }).join('')}
+        </div>
+      `;
+      byId('ackBtn').style.display = 'inline-flex';
+      byId('quizMeta').textContent = `Question ${quizIndex + 1} of ${quizQuestions.length} · Score ${quizScore}`;
+    }
+
+    function acknowledgeFeedback() {
+      byId('ackBtn').style.display = 'none';
+      if (quizIndex < quizQuestions.length - 1) {
+        byId('nextBtn').classList.add('show');
+      } else {
+        showScore();
+      }
+    }
+
+    function showScore() {
+      byId('quizProgress').style.width = '100%';
+      const total = quizQuestions.length;
+      const pct = Math.round((quizScore / total) * 100);
+      let note = 'You are building the key skill: matching the style to the situation instead of memorizing labels.';
+      if (pct >= 90) note = 'Excellent pattern recognition. You are reading stakes, timing, heat, and accountability together.';
+      else if (pct >= 70) note = 'Strong foundation. Review the explanations for the items you missed and focus on the difference between a temporary pause, a compromise, and true collaboration.';
+      else note = 'Keep working the scenarios. The main move is to slow down and identify what the person is protecting in that moment.';
+      byId('scoreCard').className = 'score-card show';
+      byId('scoreCard').innerHTML = `<strong>Final score: ${quizScore}/${total} (${pct}%)</strong><p>${note}</p>`;
+      byId('resetBtn').classList.add('show');
+      byId('quizMeta').textContent = `Complete · Score ${quizScore} of ${total}`;
+    }
+
+    function renderReflection() {
+      const wrap = byId('reflectionButtons');
+      wrap.innerHTML = '';
+      styleOrder.forEach((key) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'mini-btn';
+        btn.textContent = `${styles[key].icon} ${styles[key].label}`;
+        btn.addEventListener('click', () => {
+          wrap.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          byId('reflectionTitle').textContent = `${styles[key].icon} ${styles[key].label}`;
+          byId('reflectionText').textContent = styles[key].stretch;
+          byId('reflectionPrompt').textContent = `Think of one recent conflict. What did ${styles[key].label.toLowerCase()} protect for you, and what did it make harder?`;
+        });
+        wrap.appendChild(btn);
+      });
+    }
+
+    byId('contextToggle').addEventListener('click', () => {
+      const panel = byId('contextPanel');
+      panel.classList.toggle('show');
+      byId('contextToggle').textContent = panel.classList.contains('show') ? 'Hide relationship + accountability context' : 'Show relationship + accountability context';
+    });
+    byId('ackBtn').addEventListener('click', acknowledgeFeedback);
+    byId('nextBtn').addEventListener('click', () => { quizIndex += 1; renderQuiz(); });
+    byId('resetBtn').addEventListener('click', () => { quizIndex = 0; quizScore = 0; renderQuiz(); });
+
+    renderChallenge();
+    renderStyles();
+    renderSliders();
+    renderScenarios();
+    renderQuiz();
+    renderReflection();
+  </script>
+</body>
+</html>
